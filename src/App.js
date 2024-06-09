@@ -25,9 +25,8 @@ const router = createBrowserRouter([
 const App = () => {
   return (
     <UserProvider>
-      <RouterProvider router={router}>
-        <ToastContainer />
-      </RouterProvider>
+      <RouterProvider router={router} />
+      <ToastContainer />
     </UserProvider>
   );
 };

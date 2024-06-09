@@ -3,6 +3,7 @@ import { UserContext } from "../context/UserContext";
 import TableHeader from "./TableHeader";
 import { useNavigate } from "react-router-dom";
 import FormComponent from "./FormComponent";
+import { notify } from "./Constant";
 
 const AddUser = () => {
   const { addUser } = useContext(UserContext);
@@ -15,6 +16,7 @@ const AddUser = () => {
 
   const handleSubmit = async (values) => {
     await addUser(values);
+    notify("User added successfully.");
     navigate("/");
   };
 
