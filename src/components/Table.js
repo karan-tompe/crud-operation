@@ -10,8 +10,8 @@ const Table = () => {
   const { users, deleteUser } = useContext(UserContext);
 
   const handleDelete = (id) => {
-    deleteUser(id);
     notify("User deleted successfully.");
+    deleteUser(id);
   };
 
   return (
