@@ -1,9 +1,32 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
 
 const UserContext = createContext(null);
 
 const UserProvider = ({ children }) => {
-  const [users, setUsers] = useState([]);
+  const encodeData = (data) => {
+    const jsonString = JSON.stringify(data);
+    const utf8Array = new TextEncoder().encode(jsonString);
+    const base64String = btoa(String.fromCharCode(...utf8Array));
+    return base64String;
+  };
+
+  const decodeData = (base64String) => {
+    const binaryString = atob(base64String);
+    const utf8Array = new Uint8Array(
+      [...binaryString].map((char) => char.charCodeAt(0))
+    );
+    const jsonString = new TextDecoder().decode(utf8Array);
+    return JSON.parse(jsonString);
+  };
+
+  const [users, setUsers] = useState(() => {
+    const savedUsers = localStorage.getItem("users");
+    return savedUsers ? decodeData(savedUsers) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem("users", encodeData(users));
+  }, [users]);
 
   const addUser = (user) => {
     setUsers([...users, { ...user, id: users.length + 1 }]);
@@ -11,7 +34,9 @@ const UserProvider = ({ children }) => {
 
   const updateUser = (id, updatedUser) => {
     setUsers(
-      users.map((user) => (user.id === id ? { ...user, ...updatedUser } : user))
+      users.map((user) =>
+        Number(user.id) === Number(id) ? { ...user, ...updatedUser } : user
+      )
     );
   };
 
@@ -25,8 +50,18 @@ const UserProvider = ({ children }) => {
     setUsers(updatedUsers);
   };
 
+  const getUserById = async (id) => {
+    const user = users.find((user) => Number(user.id) === Number(id));
+    if (!user) {
+      throw new Error("User not found");
+    }
+    return user;
+  };
+
   return (
-    <UserContext.Provider value={{ users, addUser, updateUser, deleteUser }}>
+    <UserContext.Provider
+      value={{ users, addUser, updateUser, deleteUser, getUserById }}
+    >
       {children}
     </UserContext.Provider>
   );
